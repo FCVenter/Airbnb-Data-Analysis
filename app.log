@@ -47,3 +47,9 @@
 2024-10-08 12:39:43,597 - INFO - Query executed successfully with 23564 records returned.
 2024-10-08 12:40:05,626 - INFO - Executing query: 5) Neighbourhoods with highest availability and average price with params {}
 2024-10-08 12:40:05,701 - INFO - Query executed successfully with 10 records returned.
+2024-10-08 12:48:11,099 - INFO - Database connection established successfully.
+2024-10-08 12:48:11,152 - INFO - Application started.
+2024-10-08 12:48:23,050 - WARNING - Input validation error: Please enter a value for "group size".
+2024-10-08 12:48:29,734 - INFO - Executing query: 15) Likelihood of a listing being available with params {}
+2024-10-08 12:48:31,800 - INFO - Query executed successfully with 23564 records returned.
+2024-10-08 12:48:53,904 - INFO - Executing query: 11) Listings sorted from highest to lowest price with params {}

@@ -1,12 +1,11 @@
-# main.py
-
 import sys
 import logging
 from dotenv import load_dotenv
 import os
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QScrollArea
+    QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QScrollArea,
+    QSplitter, QFormLayout, QSizePolicy, QStatusBar
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QFont, QPalette, QColor, QAction
@@ -106,7 +105,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Airbnb Data Analysis')
         self.setMinimumSize(900, 700)
 
-        # Central widget and main vertical layout
+        # Central widget and main layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
@@ -114,17 +113,52 @@ class MainWindow(QMainWindow):
         # Menu bar setup for theme switching
         self.setupMenuBar()
 
-        # Query selection layout (dropdown)
-        self.setupQuerySelection(main_layout)
+        # Create a splitter to split the window horizontally
+        splitter = QSplitter(Qt.Horizontal)
 
-        # Parameters input area within a scrollable area
-        self.setupParametersInput(main_layout)
+        # Left widget: parameters area
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setSpacing(10)
+        left_layout.setContentsMargins(10, 10, 10, 10)
 
-        # Run button layout
-        self.setupRunButton(main_layout)
+        # Add query selection to left layout
+        self.setupQuerySelection(left_layout)
 
-        # Results table setup
-        self.setupResultsTable(main_layout)
+        # Parameters label
+        parameters_label = QLabel('Parameters:')
+        parameters_label.setFont(QFont('Arial', 12))
+        left_layout.addWidget(parameters_label)
+
+        # Add parameters input to left layout
+        self.setupParametersInput(left_layout)
+
+        # Stretch to push the run button to the bottom
+        left_layout.addStretch()
+
+        # Add run button to left layout
+        self.setupRunButton(left_layout)
+
+        # Add the left widget to the splitter
+        splitter.addWidget(left_widget)
+
+        # Right widget: results table
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        self.setupResultsTable()
+        right_layout.addWidget(self.results_table)
+        splitter.addWidget(right_widget)
+
+        # Set the splitter sizes
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 3)
+
+        # Add the splitter to the main layout
+        main_layout.addWidget(splitter)
+
+        # Status bar
+        self.statusBar = QStatusBar()
+        self.setStatusBar(self.statusBar)
 
         # Initialize parameters for the first query
         self.updateParameters(0)
@@ -141,12 +175,12 @@ class MainWindow(QMainWindow):
         self.theme_action.triggered.connect(self.toggleTheme)
         view_menu.addAction(self.theme_action)
 
-    def setupQuerySelection(self, main_layout):
+    def setupQuerySelection(self, parent_layout):
         """
         Sets up the query selection dropdown.
 
         Args:
-            main_layout: The main vertical layout to add the query selection widgets.
+            parent_layout: The layout to add the query selection widgets.
         """
         query_layout = QHBoxLayout()
         query_label = QLabel('Select Query:')
@@ -154,6 +188,7 @@ class MainWindow(QMainWindow):
 
         self.query_combo = QComboBox()
         self.query_combo.setFont(QFont('Arial', 12))
+        self.query_combo.setToolTip('Select the query to execute')
 
         # Populate the combo box with queries
         for index in sorted(queries.keys()):
@@ -167,51 +202,50 @@ class MainWindow(QMainWindow):
         query_layout.addWidget(self.query_combo)
         query_layout.addStretch()  # Pushes widgets to the left
 
-        # Add the query layout to the main layout
-        main_layout.addLayout(query_layout)
+        # Add the query layout to the parent layout
+        parent_layout.addLayout(query_layout)
 
-    def setupParametersInput(self, main_layout):
+    def setupParametersInput(self, parent_layout):
         """
         Sets up the parameters input area within a scrollable area.
 
         Args:
-            main_layout: The main vertical layout to add the parameters input widgets.
+            parent_layout: The layout to add the parameters input widgets.
         """
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
+        scroll_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.parameters_container = QWidget()
-        self.parameters_layout = QVBoxLayout(self.parameters_container)
+        # Use QFormLayout for a more professional look
+        self.parameters_layout = QFormLayout(self.parameters_container)
         scroll_area.setWidget(self.parameters_container)
 
-        main_layout.addWidget(scroll_area)
+        parent_layout.addWidget(scroll_area)
 
         # Dictionary to hold parameter input widgets
         self.parameter_inputs = {}
 
-    def setupRunButton(self, main_layout):
+    def setupRunButton(self, parent_layout):
         """
         Sets up the 'Run Query' button.
 
         Args:
-            main_layout: The main vertical layout to add the run button.
+            parent_layout: The layout to add the run button.
         """
         run_layout = QHBoxLayout()
         self.run_button = QPushButton('Run Query')
         self.run_button.setFont(QFont('Arial', 12))
         self.run_button.clicked.connect(self.runQuery)
 
-        run_layout.addStretch()  # Pushes the button to the right
         run_layout.addWidget(self.run_button)
+        run_layout.setAlignment(Qt.AlignCenter)
 
-        main_layout.addLayout(run_layout)
+        parent_layout.addLayout(run_layout)
 
-    def setupResultsTable(self, main_layout):
+    def setupResultsTable(self):
         """
         Sets up the table widget to display query results.
-
-        Args:
-            main_layout: The main vertical layout to add the results table.
         """
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(0)
@@ -220,8 +254,7 @@ class MainWindow(QMainWindow):
         self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Make table read-only
         self.results_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.results_table.setSelectionMode(QTableWidget.SingleSelection)
-
-        main_layout.addWidget(self.results_table)
+        self.results_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def updateParameters(self, index):
         """
@@ -247,24 +280,17 @@ class MainWindow(QMainWindow):
         """
         Clears all existing parameter input widgets from the parameters layout.
         """
-        def clearLayout(layout):
-            if layout is not None:
-                while layout.count():
-                    item = layout.takeAt(0)
-                    widget = item.widget()
-                    if widget is not None:
-                        widget.deleteLater()
-                    else:
-                        sub_layout = item.layout()
-                        if sub_layout is not None:
-                            clearLayout(sub_layout)
-                            sub_layout.deleteLater()
-        clearLayout(self.parameters_layout)
+        while self.parameters_layout.count():
+            item = self.parameters_layout.takeAt(0)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
         self.parameter_inputs.clear()
 
     def createParameterInput(self, label_text):
         """
-        Creates a horizontal layout with a label and input field for a parameter.
+        Creates an input field for a parameter and adds it to the parameters layout.
 
         Args:
             label_text: The text for the label describing the parameter.
@@ -272,15 +298,13 @@ class MainWindow(QMainWindow):
         Returns:
             The QLineEdit input field widget.
         """
-        layout = QHBoxLayout()
         label = QLabel(label_text)
         label.setFont(QFont('Arial', 12))
         input_field = QLineEdit()
         input_field.setFont(QFont('Arial', 12))
         input_field.setPlaceholderText('Enter value')
-        layout.addWidget(label)
-        layout.addWidget(input_field)
-        self.parameters_layout.addLayout(layout)
+        # Add to form layout
+        self.parameters_layout.addRow(label, input_field)
         return input_field
 
     def runQuery(self):
@@ -321,6 +345,7 @@ class MainWindow(QMainWindow):
                 params[param_name] = param_value
 
             logging.info(f'Executing query: {query_info["description"]} with params {params}')
+            self.statusBar.showMessage('Executing query...', 5000)
 
             # Execute the query in a separate thread
             self.thread = QueryThread(self.engine, sql, params)
@@ -361,6 +386,7 @@ class MainWindow(QMainWindow):
         self.results_table.resizeRowsToContents()
 
         logging.info(f'Query executed successfully with {len(df)} records returned.')
+        self.statusBar.showMessage(f'Query executed successfully. {len(df)} records returned.', 5000)
 
     def handleThreadError(self, error_message):
         """
@@ -371,6 +397,7 @@ class MainWindow(QMainWindow):
         """
         logging.error(f'Query thread error: {error_message}')
         QMessageBox.critical(self, 'Query Error', f'An error occurred while executing the query:\n{error_message}')
+        self.statusBar.showMessage('Error occurred during query execution.', 5000)
 
     def toggleTheme(self):
         """
@@ -429,6 +456,9 @@ if __name__ == '__main__':
 
     # Set application style for consistency across platforms
     app.setStyle('Fusion')
+
+    # Set the default font
+    app.setFont(QFont('Arial', 10))
 
     # Instantiate and display the main window
     window = MainWindow()
