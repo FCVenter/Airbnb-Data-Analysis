@@ -1,0 +1,49 @@
+2024-10-08 11:51:26,919 - ERROR - Database connection failed: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  password authentication failed for user "your_username"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-10-08 11:51:50,562 - ERROR - Database connection failed: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  password authentication failed for user "fcven"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-10-08 11:52:08,823 - ERROR - Database connection failed: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  password authentication failed for user "fcven"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-10-08 11:54:27,315 - INFO - Database connection established successfully.
+2024-10-08 11:54:27,416 - INFO - Application started.
+2024-10-08 11:54:39,038 - INFO - Executing query: 1) Listings with a certain number of reviews in a specific price range with params {'lowest_value': 100.0, 'highest_value': 1000.0, 'min_reviews': 5}
+2024-10-08 11:54:40,745 - INFO - Query executed successfully with 5397 records returned.
+2024-10-08 11:57:05,819 - INFO - Executing query: 1) Listings with a certain number of reviews in a specific price range with params {'lowest_value': 100.0, 'highest_value': 1000.0, 'min_reviews': 50}
+2024-10-08 11:57:06,235 - INFO - Query executed successfully with 1602 records returned.
+2024-10-08 11:57:16,632 - INFO - Executing query: 1) Listings with a certain number of reviews in a specific price range with params {'lowest_value': 100.0, 'highest_value': 1000.0, 'min_reviews': 500}
+2024-10-08 11:57:16,657 - INFO - Query executed successfully with 6 records returned.
+2024-10-08 12:13:23,111 - INFO - Database connection established successfully.
+2024-10-08 12:13:23,171 - INFO - Application started.
+2024-10-08 12:14:15,798 - INFO - Database connection established successfully.
+2024-10-08 12:14:15,849 - INFO - Application started.
+2024-10-08 12:14:20,657 - WARNING - Input validation error: Please enter a value for "group size".
+2024-10-08 12:20:27,756 - INFO - Database connection established successfully.
+2024-10-08 12:20:27,808 - INFO - Application started.
+2024-10-08 12:20:36,229 - INFO - Executing query: 5) Neighbourhoods with highest availability and average price with params {}
+2024-10-08 12:20:36,275 - INFO - Query executed successfully with 10 records returned.
+2024-10-08 12:21:58,923 - INFO - Executing query: 3) Average price of listings in each neighbourhood, ordered by the number of reviews with params {}
+2024-10-08 12:21:58,945 - INFO - Query executed successfully with 90 records returned.
+2024-10-08 12:22:25,038 - WARNING - Input validation error: Please enter a value for "lowest value".
+2024-10-08 12:22:33,492 - INFO - Executing query: 15) Likelihood of a listing being available with params {}
+2024-10-08 12:22:36,141 - INFO - Query executed successfully with 23564 records returned.
+2024-10-08 12:23:06,778 - INFO - Executing query: 13) Listings with a minimum amount of reviews with params {'min_reviews': 100}
+2024-10-08 12:23:07,073 - INFO - Query executed successfully with 1366 records returned.
+2024-10-08 12:32:15,441 - INFO - Database connection established successfully.
+2024-10-08 12:32:15,497 - INFO - Application started.
+2024-10-08 12:32:33,131 - INFO - Executing query: 9) Relationship between price and popularity in popular neighbourhoods with params {'max_price': 1000.0}
+2024-10-08 12:32:33,162 - INFO - Query executed successfully with 73 records returned.
+2024-10-08 12:34:58,239 - INFO - Database connection established successfully.
+2024-10-08 12:34:58,292 - INFO - Application started.
+2024-10-08 12:35:05,453 - INFO - Executing query: 5) Neighbourhoods with highest availability and average price with params {}
+2024-10-08 12:35:05,479 - INFO - Query executed successfully with 10 records returned.
+2024-10-08 12:36:28,530 - INFO - Database connection established successfully.
+2024-10-08 12:36:28,584 - INFO - Application started.
+2024-10-08 12:36:35,911 - INFO - Executing query: 5) Neighbourhoods with highest availability and average price with params {}
+2024-10-08 12:36:35,932 - INFO - Query executed successfully with 10 records returned.
+2024-10-08 12:39:41,559 - INFO - Executing query: 15) Likelihood of a listing being available with params {}
+2024-10-08 12:39:43,597 - INFO - Query executed successfully with 23564 records returned.
+2024-10-08 12:40:05,626 - INFO - Executing query: 5) Neighbourhoods with highest availability and average price with params {}
+2024-10-08 12:40:05,701 - INFO - Query executed successfully with 10 records returned.

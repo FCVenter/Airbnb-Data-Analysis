@@ -1,8 +1,13 @@
 import pandas as pd # type: ignore
 from sqlalchemy import create_engine # type: ignore
+import os
+
+# Get the directory of the current script
+script_dir = os.path.dirname(__file__)
 
 # Read the CSV file into a DataFrame
-df = pd.read_csv('listings.csv')
+csv_path = os.path.join(script_dir, 'listings.csv')
+df = pd.read_csv(csv_path)
 
 # Create a connection to the PostgreSQL database
 engine = create_engine('postgresql+psycopg2://postgres:mielies@localhost/airbnb_cape_town')
