@@ -53,3 +53,4 @@
 2024-10-08 12:48:29,734 - INFO - Executing query: 15) Likelihood of a listing being available with params {}
 2024-10-08 12:48:31,800 - INFO - Query executed successfully with 23564 records returned.
 2024-10-08 12:48:53,904 - INFO - Executing query: 11) Listings sorted from highest to lowest price with params {}
+2024-10-08 12:48:55,544 - INFO - Query executed successfully with 20098 records returned.
