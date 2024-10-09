@@ -1,229 +1,446 @@
 # queries.py
 
 queries = {
-    0: {
-        'description': '1) Listings with a certain number of reviews in a specific price range',
-        'sql': """
-            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, ROUND(l.reviews_per_month, 2) AS reviews_per_month
-            FROM Listings l
-            WHERE l.price BETWEEN :lowest_value AND :highest_value
-              AND l.number_of_reviews >= :min_reviews
-            ORDER BY l.reviews_per_month DESC;
-        """,
-        'params': [
-            ('lowest_value', 'Enter lowest price:', float),
-            ('highest_value', 'Enter highest price:', float),
-            ('min_reviews', 'Enter minimum number of reviews:', int)
-        ]
-    },
     1: {
-        'description': '2) Count of listings in each neighbourhood for a given price range and availability',
+        'description': 'Top 10 most affordable Airbnb listings in Cape Town that accommodate at least X people, offer at least Y key amenities, and are priced under ZAR X per night.',
         'sql': """
-            SELECT l.neighbourhood, COUNT(l.name) AS listings_count
-            FROM Listings l
-            WHERE l.price BETWEEN :min_price AND :max_price
-              AND l.availability_365 >= :min_availability
-            GROUP BY l.neighbourhood
-            ORDER BY listings_count DESC;
+            SELECT 
+                name, 
+                neighbourhood, 
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates,
+                array_length(string_to_array(amenities, ','), 1) AS amenities_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= :min_guests
+                AND array_length(string_to_array(amenities, ','), 1) >= :min_amenities
+                AND price <= :max_price
+            ORDER BY 
+                price ASC
+            LIMIT 10;
         """,
         'params': [
-            ('min_price', 'Enter minimum price:', float),
-            ('max_price', 'Enter maximum price:', float),
-            ('min_availability', 'Enter minimum availability (days per year):', int)
+            ('min_guests', 'Enter minimum number of guests:', int),
+            ('min_amenities', 'Enter minimum number of key amenities:', int),
+            ('max_price', 'Enter maximum price per night (ZAR):', float)
         ]
     },
     2: {
-        'description': '3) Average price of listings in each neighbourhood, ordered by the number of reviews',
+        'description': 'Listings for groups of X or more people with highest guest ratings within a specified price range.',
         'sql': """
-            SELECT l.neighbourhood, 'R' || TO_CHAR(AVG(l.price), 'FM999,999,999.00') AS average_price, SUM(l.number_of_reviews) AS total_reviews
-            FROM Listings l
-            GROUP BY l.neighbourhood
-            ORDER BY total_reviews DESC;
-        """,
-        'params': []
-    },
-    3: {
-        'description': '4) Listings with the most reviews in a specific price range',
-        'sql': """
-            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, l.number_of_reviews
-            FROM Listings l
-            WHERE l.price BETWEEN :lowest_value AND :highest_value
-            ORDER BY l.number_of_reviews DESC
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                review_scores_rating,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= :min_guests
+                AND price BETWEEN :min_price AND :max_price
+                AND review_scores_rating IS NOT NULL
+            ORDER BY 
+                review_scores_rating DESC
             LIMIT 10;
         """,
         'params': [
-            ('lowest_value', 'Enter lowest price:', float),
-            ('highest_value', 'Enter highest price:', float)
+            ('min_guests', 'Enter minimum number of guests:', int),
+            ('min_price', 'Enter minimum price per night (ZAR):', float),
+            ('max_price', 'Enter maximum price per night (ZAR):', float)
+        ]
+    },
+    3: {
+        'description': 'Neighbourhoods in Cape Town with the highest concentration of budget-friendly listings that accommodate X to Y people and have positive ratings.',
+        'sql': """
+            SELECT 
+                l.neighbourhood,
+                COUNT(*) AS budget_friendly_listings
+            FROM 
+                Listings l,
+                average_price ap
+            WHERE 
+                l.accommodates BETWEEN :min_guests AND :max_guests
+                AND l.price < ap.avg_price
+                AND l.review_scores_rating > :rating_threshold
+            GROUP BY 
+                l.neighbourhood
+            ORDER BY 
+                budget_friendly_listings DESC;
+        """,
+        'params': [
+            ('min_guests', 'Enter minimum number of guests:', int),
+            ('max_guests', 'Enter maximum number of guests:', int),
+            ('rating_threshold', 'Enter minimum review score rating (e.g., 3):', float)
         ]
     },
     4: {
-        'description': '5) Neighbourhoods with highest availability and average price',
+        'description': 'Average nightly price for listings in each neighbourhood that can accommodate a group.',
         'sql': """
-            SELECT l.neighbourhood, ROUND(AVG(l.availability_365), 2) AS avg_availability, 'R' || TO_CHAR(AVG(l.price), 'FM999,999,999.00') AS avg_price
-            FROM Listings l
-            GROUP BY l.neighbourhood
-            ORDER BY avg_availability DESC
-            LIMIT 10;
-        """,
-        'params': []
-    },
-    5: {
-        'description': '6) Neighbourhoods with most listings under a specific price per night',
-        'sql': """
-            SELECT l.neighbourhood, COUNT(l.name) AS listings_count
-            FROM Listings l
-            WHERE l.price <= :max_price
-            GROUP BY l.neighbourhood
-            ORDER BY listings_count DESC;
+            SELECT 
+                neighbourhood,
+                ROUND(AVG(price), 2) AS average_nightly_price
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= :group_size
+            GROUP BY 
+                neighbourhood
+            ORDER BY 
+                average_nightly_price ASC;
         """,
         'params': [
-            ('max_price', 'Enter maximum price per night:', float)
+            ('group_size', 'Enter group size (number of people):', int)
+        ]
+    },
+    5: {
+        'description': 'Best value listings based on price per person per night for groups of X people.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates,
+                ROUND(price / :group_size, 2) AS price_per_person
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= :group_size
+                AND price IS NOT NULL
+            ORDER BY 
+                price_per_person ASC
+            LIMIT 10;
+        """,
+        'params': [
+            ('group_size', 'Enter group size (number of people):', int)
         ]
     },
     6: {
-        'description': '7) Listings for groups with positive feedback below city average price',
+        'description': 'Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities.',
         'sql': """
-            WITH city_avg AS (
-                SELECT AVG(price) AS average_price
-                FROM Listings
-            )
-            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, l.number_of_reviews
-            FROM Listings l, city_avg
-            WHERE l.minimum_nights >= :group_size
-              AND l.price <= city_avg.average_price
-              AND l.number_of_reviews >= :min_reviews
-            ORDER BY l.number_of_reviews DESC;
+            SELECT 
+                neighbourhood,
+                ROUND(AVG(price), 2) AS average_price,
+                COUNT(*) AS listings_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= :min_guests
+                AND price <= :max_price
+                AND array_length(string_to_array(amenities, ','), 1) >= :min_amenities
+            GROUP BY 
+                neighbourhood
+            ORDER BY 
+                average_price ASC
+            LIMIT 10;
         """,
         'params': [
-            ('group_size', 'Enter minimum group size:', int),
-            ('min_reviews', 'Enter minimum number of reviews:', int)
+            ('min_guests', 'Enter minimum number of guests (e.g., for families):', int),
+            ('max_price', 'Enter maximum price per night (ZAR):', float),
+            ('min_amenities', 'Enter minimum number of key amenities:', int)
         ]
     },
     7: {
-        'description': '8) Room Type Analysis: Reviews and Average Price',
+        'description': 'Compare average prices of listings that accommodate X people in top-rated areas versus less popular areas.',
         'sql': """
-            SELECT l.room_type, SUM(l.number_of_reviews) AS total_reviews, 'R' || TO_CHAR(AVG(l.price), 'FM999,999,999.00') AS avg_price
-            FROM Listings l
-            GROUP BY l.room_type
-            ORDER BY total_reviews DESC;
-        """,
-        'params': []
-    },
-    8: {
-        'description': '9) Relationship between price and popularity in popular neighbourhoods',
-        'sql': """
-            SELECT l.neighbourhood, 'R' || TO_CHAR(AVG(l.price), 'FM999,999,999.00') AS avg_price, ROUND(AVG(l.reviews_per_month), 2) AS avg_reviews_per_month
-            FROM Listings l
-            WHERE l.price <= :max_price
-              AND l.reviews_per_month IS NOT NULL
-              AND l.price IS NOT NULL
-            GROUP BY l.neighbourhood
-            ORDER BY avg_reviews_per_month DESC;
+            WITH top_vs_less AS (
+                SELECT 
+                    l.neighbourhood,
+                    CASE 
+                        WHEN nr.avg_rating >= :rating_threshold THEN 'Top-rated'
+                        ELSE 'Less popular'
+                    END AS area_type,
+                    l.price
+                FROM 
+                    Listings l
+                JOIN 
+                    neighbourhood_ratings nr ON l.neighbourhood = nr.neighbourhood
+                WHERE 
+                    l.accommodates >= :group_size
+                    AND l.price IS NOT NULL
+            )
+            SELECT 
+                area_type,
+                ROUND(AVG(price), 2) AS average_price
+            FROM 
+                top_vs_less
+            GROUP BY 
+                area_type;
         """,
         'params': [
-            ('max_price', 'Enter maximum price per night:', float)
+            ('rating_threshold', 'Enter rating threshold to define top-rated areas (e.g., 4):', float),
+            ('group_size', 'Enter group size (number of people):', int)
+        ]
+    },
+    8: {
+        'description': 'Listings for groups of X people with the most consistent positive guest feedback and priced below the citywide average of ZAR X per night.',
+        'sql': """
+            SELECT 
+                l.name,
+                l.neighbourhood,
+                'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price,
+                l.review_scores_rating,
+                l.accommodates
+            FROM 
+                Listings l,
+                average_price ap
+            WHERE 
+                l.accommodates >= :group_size
+                AND l.price < ap.avg_price
+                AND l.review_scores_rating > :rating_threshold
+            ORDER BY 
+                l.review_scores_rating DESC,
+                l.price ASC
+            LIMIT 10;
+        """,
+        'params': [
+            ('group_size', 'Enter group size (number of people):', int),
+            ('rating_threshold', 'Enter minimum review score rating:', float)
         ]
     },
     9: {
-        'description': '10) Best value listings in under-serviced areas',
+        'description': 'Relationship between listing price and the number of amenities in the most popular neighbourhoods for large groups, focusing on listings under ZAR X per night.',
         'sql': """
-            SELECT l.name, l.neighbourhood, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, l.number_of_reviews, l.availability_365
-            FROM Listings l
-            WHERE l.price <= :max_price
-              AND l.availability_365 < :max_availability
-            ORDER BY l.number_of_reviews DESC, l.price ASC;
+            SELECT 
+                l.name,
+                l.neighbourhood,
+                'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price,
+                array_length(string_to_array(l.amenities, ','), 1) AS amenities_count
+            FROM 
+                Listings l
+            JOIN 
+                top_neighbourhoods tn ON l.neighbourhood = tn.neighbourhood
+            WHERE 
+                l.accommodates >= :group_size
+                AND l.price < :max_price
+            ORDER BY 
+                l.neighbourhood,
+                l.price ASC;
         """,
         'params': [
-            ('max_price', 'Enter maximum price per night:', float),
-            ('max_availability', 'Enter maximum availability (days per year):', int)
+            ('group_size', 'Enter group size (number of people):', int),
+            ('max_price', 'Enter maximum price per night (ZAR):', float)
         ]
     },
     10: {
-        'description': '11) Listings sorted from highest to lowest price',
+        'description': 'Best value listings in under-served areas based on guest ratings and price for groups of X people, particularly those under ZAR X per night.',
         'sql': """
-            SELECT l.name, l.neighbourhood, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price
-            FROM Listings l
-            WHERE l.price IS NOT NULL
-            ORDER BY l.price DESC;
-        """,
-        'params': []
-    },
-    11: {
-        'description': '12) Listings sorted from lowest to highest price',
-        'sql': """
-            SELECT l.name, l.neighbourhood, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price
-            FROM Listings l
-            WHERE l.price IS NOT NULL
-            ORDER BY l.price ASC;
-        """,
-        'params': []
-    },
-    12: {
-        'description': '13) Listings with a minimum amount of reviews',
-        'sql': """
-            SELECT l.name, l.number_of_reviews
-            FROM Listings l
-            WHERE l.number_of_reviews >= :min_reviews
-            ORDER BY l.number_of_reviews DESC;
+            SELECT 
+                l.name,
+                l.neighbourhood,
+                'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price,
+                l.review_scores_rating,
+                l.accommodates
+            FROM 
+                Listings l
+            JOIN 
+                under_served_neighbourhoods usn ON l.neighbourhood = usn.neighbourhood
+            WHERE 
+                l.accommodates >= :group_size
+                AND l.price < :max_price
+                AND l.review_scores_rating > :rating_threshold
+            ORDER BY 
+                l.review_scores_rating DESC,
+                l.price ASC
+            LIMIT 10;
         """,
         'params': [
-            ('min_reviews', 'Enter minimum number of reviews:', int)
+            ('group_size', 'Enter group size (number of people):', int),
+            ('max_price', 'Enter maximum price per night (ZAR):', float),
+            ('rating_threshold', 'Enter minimum review score rating:', float)
+        ]
+    },
+    11: {
+        'description': 'Airbnb listings in Cape Town sorted from highest to lowest by price.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT :limit OFFSET :offset;
+        """,
+        'params': [
+            ('limit', 'Enter number of listings per page:', int),
+            ('offset', 'Enter number of listings to skip (for pagination):', int)
+        ]
+    },
+    12: {
+        'description': 'Airbnb listings in Cape Town sorted from lowest to highest by price.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price ASC
+            LIMIT :limit OFFSET :offset;
+        """,
+        'params': [
+            ('limit', 'Enter number of listings per page:', int),
+            ('offset', 'Enter number of listings to skip (for pagination):', int)
         ]
     },
     13: {
-        'description': '14) Listings by specific price and number of reviews',
+        'description': 'Airbnb listings rated X stars or higher.',
         'sql': """
-            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, l.number_of_reviews
-            FROM Listings l
-            WHERE l.price <= :max_price
-              AND l.number_of_reviews >= :min_reviews
-            ORDER BY l.price DESC, l.number_of_reviews DESC;
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                review_scores_rating,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                review_scores_rating >= :min_rating
+            ORDER BY 
+                review_scores_rating DESC
+            LIMIT 100 OFFSET :offset;
         """,
         'params': [
-            ('max_price', 'Enter maximum price per night:', float),
-            ('min_reviews', 'Enter minimum number of reviews:', int)
+            ('min_rating', 'Enter minimum review score rating:', float),
+            ('offset', 'Enter number of listings to skip (for pagination):', int)
         ]
     },
     14: {
-        'description': '15) Likelihood of a listing being available',
+        'description': 'Listings ranked by a weighted score (Price 60%, Rating 40%) to balance affordability and guest satisfaction.',
         'sql': """
-            SELECT l.name, l.availability_365, ROUND((l.availability_365 / 365.0) * 100, 2) AS availability_percentage
-            FROM Listings l
-            ORDER BY availability_percentage DESC;
+            WITH price_stats AS (
+                SELECT 
+                    MIN(price) AS min_price,
+                    MAX(price) AS max_price
+                FROM 
+                    Listings
+                WHERE 
+                    price IS NOT NULL
+            ), rating_stats AS (
+                SELECT 
+                    MIN(review_scores_rating) AS min_rating,
+                    MAX(review_scores_rating) AS max_rating
+                FROM 
+                    Listings
+                WHERE 
+                    review_scores_rating IS NOT NULL
+            )
+            SELECT 
+                l.name,
+                l.neighbourhood,
+                'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price,
+                l.review_scores_rating,
+                ROUND(
+                    0.6 * (1 - ((l.price - ps.min_price) / NULLIF(ps.max_price - ps.min_price, 0))) +
+                    0.4 * ((l.review_scores_rating - rs.min_rating) / NULLIF(rs.max_rating - rs.min_rating, 0)),
+                    2
+                ) AS weighted_score
+            FROM 
+                Listings l
+            CROSS JOIN 
+                price_stats ps
+            CROSS JOIN 
+                rating_stats rs
+            WHERE 
+                l.price IS NOT NULL
+                AND l.review_scores_rating IS NOT NULL
+            ORDER BY 
+                weighted_score DESC
+            LIMIT :limit OFFSET :offset;
+        """,
+        'params': [
+            ('limit', 'Enter number of listings to retrieve:', int),
+            ('offset', 'Enter number of listings to skip (for pagination):', int)
+        ]
+    },
+    15: {
+        'description': 'Likelihood of a listing being available based on availability percentage.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                availability_365,
+                ROUND((availability_365 / 365.0) * 100, 2) AS availability_percentage
+            FROM 
+                Listings
+            ORDER BY 
+                availability_percentage DESC
+            LIMIT :limit OFFSET :offset;
+        """,
+        'params': [
+            ('limit', 'Enter number of listings to retrieve:', int),
+            ('offset', 'Enter number of listings to skip (for pagination):', int)
+        ]
+    },
+    16: {
+        'description': 'Airbnb listings with the highest overall guest ratings.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                review_scores_rating,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                review_scores_rating IS NOT NULL
+            ORDER BY 
+                review_scores_rating DESC
+            LIMIT :limit;
+        """,
+        'params': [
+            ('limit', 'Enter number of top-rated listings to retrieve:', int)
+        ]
+    },
+    17: {
+        'description': 'Airbnb listings with the lowest overall guest ratings.',
+        'sql': """
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                review_scores_rating,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                review_scores_rating IS NOT NULL
+            ORDER BY 
+                review_scores_rating ASC
+            LIMIT :limit;
+        """,
+        'params': [
+            ('limit', 'Enter number of lowest-rated listings to retrieve:', int)
+        ]
+    },
+    18: {
+        'description': 'Listings categorized by room type with counts.',
+        'sql': """
+            SELECT 
+                room_type,
+                COUNT(*) AS listings_count
+            FROM 
+                Listings
+            GROUP BY 
+                room_type
+            ORDER BY 
+                listings_count DESC;
         """,
         'params': []
     },
-    15: {  # Question 16
-        'description': '16) Which Airbnb listings have the highest rating?',
-        'sql': """
-            SELECT l.name, ROUND(l.rating, 2) AS rating
-            FROM Listings l
-            WHERE l.rating IS NOT NULL
-            ORDER BY l.rating DESC
-            LIMIT 10;
-        """,
-        'params': []
-    },
-    16: {  # Question 17
-        'description': '17) Which Airbnb listings have the lowest rating?',
-        'sql': """
-            SELECT l.name, ROUND(l.rating, 2) AS rating
-            FROM Listings l
-            WHERE l.rating IS NOT NULL
-            ORDER BY l.rating ASC
-            LIMIT 10;
-        """,
-        'params': []
-    },
-    17: {  # Question 18
-        'description': '18) What are the listings based on room type?',
-        'sql': """
-            SELECT l.room_type, COUNT(l.name) AS listings_count
-            FROM Listings l
-            GROUP BY l.room_type
-            ORDER BY listings_count DESC;
-        """,
-        'params': []
-    },
-    # Add additional queries here...
+    # Add additional queries here as needed...
 }

@@ -54,3 +54,455 @@
 2024-10-08 12:48:31,800 - INFO - Query executed successfully with 23564 records returned.
 2024-10-08 12:48:53,904 - INFO - Executing query: 11) Listings sorted from highest to lowest price with params {}
 2024-10-08 12:48:55,544 - INFO - Query executed successfully with 20098 records returned.
+2024-10-08 13:08:06,098 - INFO - Database connection established successfully.
+2024-10-08 13:08:06,150 - INFO - Application started.
+2024-10-08 13:08:12,288 - INFO - Executing query: 16) Which Airbnb listings have the highest rating? with params {}
+2024-10-08 13:08:12,302 - ERROR - Query thread error: (psycopg2.errors.UndefinedColumn) column l.rating does not exist
+LINE 2:             SELECT l.name, ROUND(l.rating, 2) AS rating
+                                         ^
+
+[SQL: 
+            SELECT l.name, ROUND(l.rating, 2) AS rating
+            FROM Listings l
+            WHERE l.rating IS NOT NULL
+            ORDER BY l.rating DESC
+            LIMIT 10;
+        ]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-08 15:18:38,499 - INFO - Executing query: 13) Listings with a minimum amount of reviews with params {'min_reviews': 100}
+2024-10-08 15:18:39,134 - INFO - Query executed successfully with 1366 records returned.
+2024-10-08 15:19:16,000 - INFO - Executing query: 6) Neighbourhoods with most listings under a specific price per night with params {'max_price': 500.0}
+2024-10-08 15:19:16,023 - INFO - Query executed successfully with 70 records returned.
+2024-10-08 15:19:54,110 - INFO - Executing query: 3) Average price of listings in each neighbourhood, ordered by the number of reviews with params {}
+2024-10-08 15:19:54,142 - INFO - Query executed successfully with 90 records returned.
+2024-10-08 15:20:29,990 - INFO - Executing query: 12) Listings sorted from lowest to highest price with params {}
+2024-10-08 15:20:32,748 - INFO - Query executed successfully with 20098 records returned.
+2024-10-08 15:21:44,330 - INFO - Executing query: 11) Listings sorted from highest to lowest price with params {}
+2024-10-08 15:21:47,242 - INFO - Query executed successfully with 20098 records returned.
+2024-10-08 15:22:48,208 - INFO - Executing query: 1) Listings with a certain number of reviews in a specific price range with params {'lowest_value': 500.0, 'highest_value': 1000.0, 'min_reviews': 500}
+2024-10-08 15:22:48,208 - ERROR - Query thread error: (psycopg2.errors.UndefinedFunction) function round(double precision, integer) does not exist
+LINE 2: ...|| TO_CHAR(l.price, 'FM999,999,999.00') AS price, ROUND(l.re...
+                                                             ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: 
+            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, ROUND(l.reviews_per_month, 2) AS reviews_per_month
+            FROM Listings l
+            WHERE l.price BETWEEN %(lowest_value)s AND %(highest_value)s
+              AND l.number_of_reviews >= %(min_reviews)s
+            ORDER BY l.reviews_per_month DESC;
+        ]
+[parameters: {'lowest_value': 500.0, 'highest_value': 1000.0, 'min_reviews': 500}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-08 15:23:06,623 - INFO - Executing query: 1) Listings with a certain number of reviews in a specific price range with params {'lowest_value': 500.0, 'highest_value': 1000.0, 'min_reviews': 50}
+2024-10-08 15:23:06,623 - ERROR - Query thread error: (psycopg2.errors.UndefinedFunction) function round(double precision, integer) does not exist
+LINE 2: ...|| TO_CHAR(l.price, 'FM999,999,999.00') AS price, ROUND(l.re...
+                                                             ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: 
+            SELECT l.name, 'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price, ROUND(l.reviews_per_month, 2) AS reviews_per_month
+            FROM Listings l
+            WHERE l.price BETWEEN %(lowest_value)s AND %(highest_value)s
+              AND l.number_of_reviews >= %(min_reviews)s
+            ORDER BY l.reviews_per_month DESC;
+        ]
+[parameters: {'lowest_value': 500.0, 'highest_value': 1000.0, 'min_reviews': 50}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-08 15:23:42,138 - INFO - Executing query: 7) Listings for groups with positive feedback below city average price with params {'group_size': 5, 'min_reviews': 50}
+2024-10-08 15:23:42,262 - INFO - Query executed successfully with 135 records returned.
+2024-10-09 12:33:09,677 - INFO - Database connection established successfully.
+2024-10-09 12:33:09,902 - INFO - Application started.
+2024-10-09 12:33:29,272 - INFO - Executing query: 16) Which Airbnb listings have the highest rating? with params {}
+2024-10-09 12:33:29,313 - ERROR - Query thread error: (psycopg2.errors.UndefinedColumn) column l.rating does not exist
+LINE 2:             SELECT l.name, ROUND(l.rating, 2) AS rating
+                                         ^
+
+[SQL: 
+            SELECT l.name, ROUND(l.rating, 2) AS rating
+            FROM Listings l
+            WHERE l.rating IS NOT NULL
+            ORDER BY l.rating DESC
+            LIMIT 10;
+        ]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 12:59:34,542 - INFO - Database connection established successfully.
+2024-10-09 12:59:34,635 - INFO - Application started.
+2024-10-09 12:59:42,244 - INFO - Executing query: 16) Which Airbnb listings have the highest rating? with params {}
+2024-10-09 12:59:42,280 - ERROR - Query thread error: (psycopg2.errors.UndefinedColumn) column l.rating does not exist
+LINE 2:             SELECT l.name, ROUND(l.rating, 2) AS rating
+                                         ^
+
+[SQL: 
+            SELECT l.name, ROUND(l.rating, 2) AS rating
+            FROM Listings l
+            WHERE l.rating IS NOT NULL
+            ORDER BY l.rating DESC
+            LIMIT 10;
+        ]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 12:59:51,349 - INFO - Executing query: 16) Which Airbnb listings have the highest rating? with params {}
+2024-10-09 12:59:51,353 - ERROR - Query thread error: (psycopg2.errors.UndefinedColumn) column l.rating does not exist
+LINE 2:             SELECT l.name, ROUND(l.rating, 2) AS rating
+                                         ^
+
+[SQL: 
+            SELECT l.name, ROUND(l.rating, 2) AS rating
+            FROM Listings l
+            WHERE l.rating IS NOT NULL
+            ORDER BY l.rating DESC
+            LIMIT 10;
+        ]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 13:41:39,454 - INFO - Database connection established successfully.
+2024-10-09 13:41:39,569 - INFO - Application started.
+2024-10-09 13:41:59,652 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {}
+2024-10-09 13:41:59,663 - ERROR - Query thread error: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter 'limit'
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: [{}]]
+(Background on this error at: https://sqlalche.me/e/20/cd3x)
+2024-10-09 13:42:18,473 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {'limit': 10, 'offset': 10}
+2024-10-09 13:42:18,486 - ERROR - Query thread error: (psycopg2.errors.UndefinedFunction) function to_char(text, unknown) does not exist
+LINE 5:                 'R' || TO_CHAR(price, 'FM999,999,999.00') AS...
+                               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: {'limit': 10, 'offset': 10}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 13:42:40,477 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {'min_guests': 10, 'max_price': 900.0, 'min_amenities': 5}
+2024-10-09 13:42:40,481 - ERROR - Query thread error: (psycopg2.errors.UndefinedFunction) function avg(text) does not exist
+LINE 4:                 ROUND(AVG(price), 2) AS average_price,
+                              ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: 
+            SELECT 
+                neighbourhood,
+                ROUND(AVG(price), 2) AS average_price,
+                COUNT(*) AS listings_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= %(min_guests)s
+                AND price <= %(max_price)s
+                AND array_length(string_to_array(amenities, ','), 1) >= %(min_amenities)s
+            GROUP BY 
+                neighbourhood
+            ORDER BY 
+                average_price ASC
+            LIMIT 10;
+        ]
+[parameters: {'min_guests': 10, 'max_price': 900.0, 'min_amenities': 5}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 14:46:18,962 - INFO - Database connection established successfully.
+2024-10-09 14:46:19,041 - INFO - Application started.
+2024-10-09 14:46:27,821 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {}
+2024-10-09 14:46:27,829 - ERROR - Query thread error: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter 'min_guests'
+[SQL: 
+            SELECT 
+                neighbourhood,
+                ROUND(AVG(price), 2) AS average_price,
+                COUNT(*) AS listings_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= %(min_guests)s
+                AND price <= %(max_price)s
+                AND array_length(string_to_array(amenities, ','), 1) >= %(min_amenities)s
+            GROUP BY 
+                neighbourhood
+            ORDER BY 
+                average_price ASC
+            LIMIT 10;
+        ]
+[parameters: [{}]]
+(Background on this error at: https://sqlalche.me/e/20/cd3x)
+2024-10-09 14:46:50,382 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {'min_guests': 10, 'max_price': 1000.0, 'min_amenities': 5}
+2024-10-09 14:46:50,387 - ERROR - Query thread error: (psycopg2.errors.UndefinedFunction) function avg(money) does not exist
+LINE 4:                 ROUND(AVG(price), 2) AS average_price,
+                              ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: 
+            SELECT 
+                neighbourhood,
+                ROUND(AVG(price), 2) AS average_price,
+                COUNT(*) AS listings_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= %(min_guests)s
+                AND price <= %(max_price)s
+                AND array_length(string_to_array(amenities, ','), 1) >= %(min_amenities)s
+            GROUP BY 
+                neighbourhood
+            ORDER BY 
+                average_price ASC
+            LIMIT 10;
+        ]
+[parameters: {'min_guests': 10, 'max_price': 1000.0, 'min_amenities': 5}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-10-09 14:49:13,233 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {'min_guests': 10, 'max_price': 1000.0, 'min_amenities': 5}
+2024-10-09 14:49:13,331 - INFO - Query executed successfully with 2 records returned.
+2024-10-09 14:58:11,297 - INFO - Database connection established successfully.
+2024-10-09 14:58:11,426 - INFO - Application started.
+2024-10-09 14:58:43,178 - INFO - Executing query: Likelihood of a listing being available based on availability percentage. with params {'limit': 10, 'offset': 10}
+2024-10-09 14:58:43,284 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 14:59:03,898 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 100}
+2024-10-09 14:59:04,641 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 14:59:15,703 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 100}
+2024-10-09 14:59:15,784 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 14:59:43,707 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 1000}
+2024-10-09 14:59:44,025 - INFO - Query executed successfully with 1000 records returned.
+2024-10-09 14:59:59,728 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 1000}
+2024-10-09 15:00:00,045 - INFO - Query executed successfully with 1000 records returned.
+2024-10-09 15:00:12,758 - INFO - Executing query: Airbnb listings with the lowest overall guest ratings. with params {'limit': 100}
+2024-10-09 15:00:12,856 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 15:00:25,288 - INFO - Executing query: Listings categorized by room type with counts. with params {}
+2024-10-09 15:00:25,339 - INFO - Query executed successfully with 4 records returned.
+2024-10-09 15:00:49,076 - INFO - Executing query: Top 10 most affordable Airbnb listings in Cape Town that accommodate at least X people, offer at least Y key amenities, and are priced under ZAR X per night. with params {'min_guests': 5, 'min_amenities': 5, 'max_price': 1000.0}
+2024-10-09 15:00:49,124 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 15:01:35,212 - INFO - Executing query: Neighbourhoods in Cape Town with the highest concentration of budget-friendly listings that accommodate X to Y people and have positive ratings. with params {'min_guests': 5, 'max_guests': 15, 'rating_threshold': 3.0}
+2024-10-09 15:01:35,313 - INFO - Query executed successfully with 38 records returned.
+2024-10-09 15:01:48,349 - INFO - Executing query: Neighbourhoods in Cape Town with the highest concentration of budget-friendly listings that accommodate X to Y people and have positive ratings. with params {'min_guests': 5, 'max_guests': 15, 'rating_threshold': 5.0}
+2024-10-09 15:01:48,392 - INFO - Query executed successfully with 0 records returned.
+2024-10-09 15:01:54,014 - INFO - Executing query: Neighbourhoods in Cape Town with the highest concentration of budget-friendly listings that accommodate X to Y people and have positive ratings. with params {'min_guests': 5, 'max_guests': 15, 'rating_threshold': 4.0}
+2024-10-09 15:01:54,102 - INFO - Query executed successfully with 36 records returned.
+2024-10-09 15:02:08,531 - INFO - Executing query: Neighbourhoods in Cape Town with the highest concentration of budget-friendly listings that accommodate X to Y people and have positive ratings. with params {'min_guests': 10, 'max_guests': 15, 'rating_threshold': 4.0}
+2024-10-09 15:02:08,609 - INFO - Query executed successfully with 3 records returned.
+2024-10-09 15:02:19,159 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 15}
+2024-10-09 15:02:19,198 - INFO - Query executed successfully with 5 records returned.
+2024-10-09 15:02:19,373 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 15}
+2024-10-09 15:02:19,407 - INFO - Query executed successfully with 5 records returned.
+2024-10-09 15:03:14,426 - INFO - Executing query: Best value listings based on price per person per night for groups of X people. with params {'group_size': 11}
+2024-10-09 15:03:14,467 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 15:05:23,858 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {'min_guests': 10, 'max_price': 1200.0, 'min_amenities': 10}
+2024-10-09 15:05:23,898 - INFO - Query executed successfully with 2 records returned.
+2024-10-09 15:06:02,069 - INFO - Executing query: Compare average prices of listings that accommodate X people in top-rated areas versus less popular areas. with params {'rating_threshold': 4.0, 'group_size': 6}
+2024-10-09 15:06:02,155 - INFO - Query executed successfully with 1 records returned.
+2024-10-09 15:06:12,042 - INFO - Executing query: Compare average prices of listings that accommodate X people in top-rated areas versus less popular areas. with params {'rating_threshold': 2.0, 'group_size': 6}
+2024-10-09 15:06:12,126 - INFO - Query executed successfully with 1 records returned.
+2024-10-09 15:06:13,954 - INFO - Executing query: Compare average prices of listings that accommodate X people in top-rated areas versus less popular areas. with params {'rating_threshold': 2.0, 'group_size': 6}
+2024-10-09 15:06:14,038 - INFO - Query executed successfully with 1 records returned.
+2024-10-09 15:06:19,938 - INFO - Executing query: Compare average prices of listings that accommodate X people in top-rated areas versus less popular areas. with params {'rating_threshold': 5.0, 'group_size': 6}
+2024-10-09 15:06:20,021 - INFO - Query executed successfully with 2 records returned.
+2024-10-09 15:06:40,425 - INFO - Executing query: Listings for groups of X people with the most consistent positive guest feedback and priced below the citywide average of ZAR X per night. with params {'group_size': 7, 'rating_threshold': 3.5}
+2024-10-09 15:06:40,505 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 18:45:24,052 - INFO - Database connection established successfully.
+2024-10-09 18:45:24,171 - INFO - Application started.
+2024-10-09 18:46:13,940 - INFO - Executing query: Top 10 most affordable Airbnb listings in Cape Town that accommodate at least X people, offer at least Y key amenities, and are priced under ZAR X per night. with params {'min_guests': 5, 'min_amenities': 7, 'max_price': 1000.0}
+2024-10-09 18:46:14,056 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 18:46:39,498 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 11}
+2024-10-09 18:46:39,539 - INFO - Query executed successfully with 15 records returned.
+2024-10-09 18:47:00,998 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {}
+2024-10-09 18:47:01,001 - ERROR - Query thread error: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter 'limit'
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: [{}]]
+(Background on this error at: https://sqlalche.me/e/20/cd3x)
+2024-10-09 18:47:08,309 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {'limit': 1, 'offset': 1}
+2024-10-09 18:47:08,320 - ERROR - Query thread error: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type double precision: "Cape Town"
+LINE 10:                 neighbourhood_group_cleansed = 'Cape Town'
+                                                        ^
+
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: {'limit': 1, 'offset': 1}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2024-10-09 18:47:20,967 - INFO - Executing query: Airbnb listings rated X stars or higher. with params {'min_rating': 3.0, 'offset': 10}
+2024-10-09 18:47:21,503 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 18:47:38,829 - INFO - Executing query: Airbnb listings rated X stars or higher. with params {'min_rating': 5.0, 'offset': 10}
+2024-10-09 18:47:38,903 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 18:48:35,432 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 100}
+2024-10-09 18:48:35,513 - INFO - Query executed successfully with 100 records returned.
+2024-10-09 18:49:04,134 - INFO - Executing query: Top 10 most affordable Airbnb listings in Cape Town that accommodate at least X people, offer at least Y key amenities, and are priced under ZAR X per night. with params {}
+2024-10-09 18:49:04,136 - ERROR - Query thread error: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter 'min_guests'
+[SQL: 
+            SELECT 
+                name, 
+                neighbourhood, 
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates,
+                array_length(string_to_array(amenities, ','), 1) AS amenities_count
+            FROM 
+                Listings
+            WHERE 
+                accommodates >= %(min_guests)s
+                AND array_length(string_to_array(amenities, ','), 1) >= %(min_amenities)s
+                AND price <= %(max_price)s
+            ORDER BY 
+                price ASC
+            LIMIT 10;
+        ]
+[parameters: [{}]]
+(Background on this error at: https://sqlalche.me/e/20/cd3x)
+2024-10-09 18:49:22,097 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 10}
+2024-10-09 18:49:22,138 - INFO - Query executed successfully with 21 records returned.
+2024-10-09 18:50:04,438 - INFO - Executing query: Neighbourhoods offering the best value for families with listings under ZAR X per night, considering key amenities. with params {'min_guests': 6, 'max_price': 1000.0, 'min_amenities': 25}
+2024-10-09 18:50:04,478 - INFO - Query executed successfully with 6 records returned.
+2024-10-09 19:16:55,624 - INFO - Database connection established successfully.
+2024-10-09 19:16:55,745 - INFO - Application started.
+2024-10-09 19:17:22,563 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {'limit': 10, 'offset': 10}
+2024-10-09 19:17:22,574 - ERROR - Query thread error: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type double precision: "Cape Town"
+LINE 10:                 neighbourhood_group_cleansed = 'Cape Town'
+                                                        ^
+
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: {'limit': 10, 'offset': 10}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2024-10-09 19:17:34,917 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {'limit': 10, 'offset': 0}
+2024-10-09 19:17:34,921 - ERROR - Query thread error: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type double precision: "Cape Town"
+LINE 10:                 neighbourhood_group_cleansed = 'Cape Town'
+                                                        ^
+
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: {'limit': 10, 'offset': 0}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2024-10-09 19:17:46,797 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 10}
+2024-10-09 19:17:46,855 - INFO - Query executed successfully with 21 records returned.
+2024-10-09 19:23:14,564 - INFO - Executing query: Best value listings based on price per person per night for groups of X people. with params {'group_size': 15}
+2024-10-09 19:23:14,621 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:23:15,007 - INFO - Executing query: Best value listings based on price per person per night for groups of X people. with params {'group_size': 15}
+2024-10-09 19:23:15,053 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:24:08,687 - INFO - Executing query: Top 10 most affordable Airbnb listings in Cape Town that accommodate at least X people, offer at least Y key amenities, and are priced under ZAR X per night. with params {'min_guests': 10, 'min_amenities': 10, 'max_price': 2000.0}
+2024-10-09 19:24:08,731 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:24:25,391 - INFO - Executing query: Average nightly price for listings in each neighbourhood that can accommodate a group. with params {'group_size': 15}
+2024-10-09 19:24:25,430 - INFO - Query executed successfully with 5 records returned.
+2024-10-09 19:25:31,884 - INFO - Executing query: Listings for groups of X people with the most consistent positive guest feedback and priced below the citywide average of ZAR X per night. with params {'group_size': 10, 'rating_threshold': 4.0}
+2024-10-09 19:25:31,966 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:26:54,293 - INFO - Executing query: Relationship between listing price and the number of amenities in the most popular neighbourhoods for large groups, focusing on listings under ZAR X per night. with params {}
+2024-10-09 19:26:54,297 - ERROR - Query thread error: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter 'group_size'
+[SQL: 
+            SELECT 
+                l.name,
+                l.neighbourhood,
+                'R' || TO_CHAR(l.price, 'FM999,999,999.00') AS price,
+                array_length(string_to_array(l.amenities, ','), 1) AS amenities_count
+            FROM 
+                Listings l
+            JOIN 
+                top_neighbourhoods tn ON l.neighbourhood = tn.neighbourhood
+            WHERE 
+                l.accommodates >= %(group_size)s
+                AND l.price < %(max_price)s
+            ORDER BY 
+                l.neighbourhood,
+                l.price ASC;
+        ]
+[parameters: [{}]]
+(Background on this error at: https://sqlalche.me/e/20/cd3x)
+2024-10-09 19:27:08,681 - INFO - Executing query: Airbnb listings with the highest overall guest ratings. with params {'limit': 4}
+2024-10-09 19:27:08,739 - INFO - Query executed successfully with 4 records returned.
+2024-10-09 19:28:22,560 - INFO - Executing query: Airbnb listings with the lowest overall guest ratings. with params {'limit': 10}
+2024-10-09 19:28:22,623 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:28:50,059 - INFO - Executing query: Listings ranked by a weighted score (Price 60%, Rating 40%) to balance affordability and guest satisfaction. with params {'limit': 10, 'offset': 10}
+2024-10-09 19:28:50,208 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:28:56,902 - INFO - Executing query: Listings ranked by a weighted score (Price 60%, Rating 40%) to balance affordability and guest satisfaction. with params {'limit': 10, 'offset': 0}
+2024-10-09 19:28:57,058 - INFO - Query executed successfully with 10 records returned.
+2024-10-09 19:30:18,221 - INFO - Executing query: Listings categorized by room type with counts. with params {}
+2024-10-09 19:30:18,265 - INFO - Query executed successfully with 4 records returned.
+2024-10-09 19:31:18,069 - INFO - Executing query: Airbnb listings in Cape Town sorted from highest to lowest by price. with params {'limit': 100, 'offset': 0}
+2024-10-09 19:31:18,071 - ERROR - Query thread error: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type double precision: "Cape Town"
+LINE 10:                 neighbourhood_group_cleansed = 'Cape Town'
+                                                        ^
+
+[SQL: 
+            SELECT 
+                name,
+                neighbourhood,
+                'R' || TO_CHAR(price, 'FM999,999,999.00') AS price,
+                accommodates
+            FROM 
+                Listings
+            WHERE 
+                neighbourhood_group_cleansed = 'Cape Town'
+                AND price IS NOT NULL
+            ORDER BY 
+                price DESC
+            LIMIT %(limit)s OFFSET %(offset)s;
+        ]
+[parameters: {'limit': 100, 'offset': 0}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)

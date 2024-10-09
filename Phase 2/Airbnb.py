@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(__file__)
 
 # Read the CSV file into a DataFrame
-csv_path = os.path.join(script_dir, 'listings.csv')
+csv_path = os.path.join(script_dir, '..\\listings.csv')
 df = pd.read_csv(csv_path)
 
 # Create a connection to the PostgreSQL database

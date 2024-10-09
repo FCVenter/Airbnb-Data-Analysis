@@ -5,10 +5,12 @@ import os
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QScrollArea,
-    QSplitter, QFormLayout, QSizePolicy, QStatusBar
+    QSplitter, QFormLayout, QSizePolicy, QStatusBar, QCheckBox, QRadioButton, QButtonGroup,
+    QListWidget, QListWidgetItem
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QFont, QPalette, QColor, QAction
+from PySide6.QtWidgets import QListView
 from sqlalchemy import create_engine, exc, text
 import pandas as pd
 from queries import queries  # Importing the queries from queries.py
@@ -133,6 +135,9 @@ class MainWindow(QMainWindow):
         # Add parameters input to left layout
         self.setupParametersInput(left_layout)
 
+        # Sorting and filtering options
+        self.setupSortingFilteringOptions(left_layout)
+
         # Stretch to push the run button to the bottom
         left_layout.addStretch()
 
@@ -152,6 +157,7 @@ class MainWindow(QMainWindow):
         # Set the splitter sizes
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 3)
+        splitter.setSizes([300, 600])
 
         # Add the splitter to the main layout
         main_layout.addWidget(splitter)
@@ -161,6 +167,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.statusBar)
 
         # Initialize parameters for the first query
+        self.query_list.setCurrentRow(0)
         self.updateParameters(0)
 
     def setupMenuBar(self):
@@ -177,33 +184,42 @@ class MainWindow(QMainWindow):
 
     def setupQuerySelection(self, parent_layout):
         """
-        Sets up the query selection dropdown.
+        Sets up the query selection list.
 
         Args:
             parent_layout: The layout to add the query selection widgets.
         """
-        query_layout = QHBoxLayout()
         query_label = QLabel('Select Query:')
         query_label.setFont(QFont('Arial', 12))
 
-        self.query_combo = QComboBox()
-        self.query_combo.setFont(QFont('Arial', 12))
-        self.query_combo.setToolTip('Select the query to execute')
+        self.query_list = QListWidget()
+        self.query_list.setFont(QFont('Arial', 12))
+        self.query_list.setToolTip('Select the query to execute')
+        self.query_list.setWordWrap(True)
+        self.query_list.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.query_list.setSelectionMode(QListWidget.SingleSelection)
 
-        # Populate the combo box with queries
+        # Populate the list widget with queries
         for index in sorted(queries.keys()):
-            self.query_combo.addItem(queries[index]['description'])
+            item = QListWidgetItem(queries[index]['description'])
+            item.setData(Qt.UserRole, index)  # Store the index in the item
+            item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.query_list.addItem(item)
 
         # Connect the selection change to update parameters
-        self.query_combo.currentIndexChanged.connect(self.updateParameters)
+        self.query_list.currentRowChanged.connect(self.updateParameters)
 
-        # Add widgets to the query layout
+        # Create a scroll area for the query list
+        query_scroll_area = QScrollArea()
+        query_scroll_area.setWidgetResizable(True)
+        query_container = QWidget()
+        query_layout = QVBoxLayout(query_container)
         query_layout.addWidget(query_label)
-        query_layout.addWidget(self.query_combo)
-        query_layout.addStretch()  # Pushes widgets to the left
+        query_layout.addWidget(self.query_list)
+        query_scroll_area.setWidget(query_container)
 
-        # Add the query layout to the parent layout
-        parent_layout.addLayout(query_layout)
+        # Add the scroll area to the parent layout
+        parent_layout.addWidget(query_scroll_area)
 
     def setupParametersInput(self, parent_layout):
         """
@@ -225,6 +241,31 @@ class MainWindow(QMainWindow):
 
         # Dictionary to hold parameter input widgets
         self.parameter_inputs = {}
+
+    def setupSortingFilteringOptions(self, parent_layout):
+        """
+        Sets up the sorting and filtering options for the selected query.
+
+        Args:
+            parent_layout: The layout to add the sorting and filtering widgets.
+        """
+        # Sorting options
+        sorting_group_box = QWidget()
+        sorting_layout = QFormLayout(sorting_group_box)
+        sorting_label = QLabel('Sort by:')
+        sorting_label.setFont(QFont('Arial', 12))
+        sorting_layout.addRow(sorting_label)
+
+        self.sort_column_combo = QComboBox()
+        self.sort_column_combo.setFont(QFont('Arial', 12))
+        self.sort_order_combo = QComboBox()
+        self.sort_order_combo.setFont(QFont('Arial', 12))
+        self.sort_order_combo.addItems(['Ascending', 'Descending'])
+
+        sorting_layout.addRow('Column:', self.sort_column_combo)
+        sorting_layout.addRow('Order:', self.sort_order_combo)
+
+        parent_layout.addWidget(sorting_group_box)
 
     def setupRunButton(self, parent_layout):
         """
@@ -262,8 +303,15 @@ class MainWindow(QMainWindow):
         Clears existing parameters and loads new ones.
 
         Args:
-            index: The index of the selected query in the combo box.
+            index: The index of the selected query.
         """
+        # Get the selected query index
+        item = self.query_list.currentItem()
+        if item:
+            index = item.data(Qt.UserRole)
+        else:
+            index = None
+
         # Clear existing parameter inputs
         self.clearParameters()
         self.parameters_container.update()  # Update the container
@@ -275,6 +323,13 @@ class MainWindow(QMainWindow):
             for param_name, label_text, param_type in params:
                 input_field = self.createParameterInput(label_text)
                 self.parameter_inputs[param_name] = (input_field, param_type)
+
+            # Update sortable columns
+            self.sort_column_combo.clear()
+            sortable_columns = query_info.get('sortable_columns', [])
+            self.sort_column_combo.addItems(sortable_columns)
+        else:
+            self.sort_column_combo.clear()
 
     def clearParameters(self):
         """
@@ -309,40 +364,76 @@ class MainWindow(QMainWindow):
 
     def runQuery(self):
         """
-        Gathers input parameters, executes the selected query in a separate thread,
-        and handles the results or errors.
+        Gathers input parameters, constructs the SQL query with dynamic filtering and sorting,
+        executes the query in a separate thread, and handles the results or errors.
         """
-        index = self.query_combo.currentIndex()
+        item = self.query_list.currentItem()
+        if item:
+            index = item.data(Qt.UserRole)
+        else:
+            QMessageBox.warning(self, 'No Query Selected', 'Please select a query to run.')
+            return
+
         query_info = queries.get(index)
 
         if not query_info:
             QMessageBox.warning(self, 'Not Implemented', 'This query is not implemented yet.')
             return
 
-        sql = text(query_info['sql'])  # Wrap the SQL with SQLAlchemy's text()
+        base_sql = query_info['sql']
         params = {}
+        where_clauses = []
+        order_by_clause = ''
 
         try:
             # Gather and validate parameters
             for param_name, (input_field, param_type) in self.parameter_inputs.items():
                 param_value = input_field.text().strip()
-                if param_value == '':
-                    raise ValueError(f'Please enter a value for "{param_name.replace("_", " ")}".')
+                if param_value != '':
+                    # Convert parameter to the required type
+                    if param_type == int:
+                        try:
+                            param_value = int(param_value)
+                        except ValueError:
+                            raise ValueError(f'Invalid integer value for "{param_name.replace("_", " ")}".')
+                    elif param_type == float:
+                        try:
+                            param_value = float(param_value)
+                        except ValueError:
+                            raise ValueError(f'Invalid float value for "{param_name.replace("_", " ")}".')
+                    # Add more type conversions if needed
 
-                # Convert parameter to the required type
-                if param_type == int:
-                    try:
-                        param_value = int(param_value)
-                    except ValueError:
-                        raise ValueError(f'Invalid integer value for "{param_name.replace("_", " ")}".')
-                elif param_type == float:
-                    try:
-                        param_value = float(param_value)
-                    except ValueError:
-                        raise ValueError(f'Invalid float value for "{param_name.replace("_", " ")}".')
-                # Add more type conversions if needed
+                    # Build WHERE clause
+                    if 'min' in param_name:
+                        column = param_name.replace('min_', '')
+                        where_clauses.append(f"{column} >= :{param_name}")
+                    elif 'max' in param_name:
+                        column = param_name.replace('max_', '')
+                        where_clauses.append(f"{column} <= :{param_name}")
+                    else:
+                        where_clauses.append(f"{param_name} = :{param_name}")
 
-                params[param_name] = param_value
+                    params[param_name] = param_value
+
+            # Build WHERE clause
+            where_clause = ''
+            if where_clauses:
+                where_clause = 'WHERE ' + ' AND '.join(where_clauses)
+            else:
+                where_clause = ''
+
+            # Build ORDER BY clause
+            sort_column = self.sort_column_combo.currentText()
+            sort_order = self.sort_order_combo.currentText()
+
+            if sort_column:
+                order_by_clause = f'ORDER BY {sort_column} {"ASC" if sort_order == "Ascending" else "DESC"}'
+            else:
+                order_by_clause = ''
+
+            # Construct the final SQL query
+            sql = base_sql.format(where_clause=where_clause, order_by_clause=order_by_clause)
+            sql = text(sql)
 
             logging.info(f'Executing query: {query_info["description"]} with params {params}')
             self.statusBar.showMessage('Executing query...', 5000)
@@ -387,6 +478,9 @@ class MainWindow(QMainWindow):
 
         logging.info(f'Query executed successfully with {len(df)} records returned.')
         self.statusBar.showMessage(f'Query executed successfully. {len(df)} records returned.', 5000)
+
+        # Scroll to the top of the table
+        self.results_table.scrollToTop()
 
     def handleThreadError(self, error_message):
         """
